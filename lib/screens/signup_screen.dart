@@ -3,24 +3,27 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:insta_todo/utils/colors.dart';
 import 'package:insta_todo/widgets/text_field_input.dart';
-import 'package:path/path.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({Key? key}) : super(key: key);
+class SignupScreen extends StatefulWidget {
+  const SignupScreen({Key? key}) : super(key: key);
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<SignupScreen> createState() => _SignupScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _SignupScreenState extends State<SignupScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _bioController = TextEditingController();
+  final TextEditingController _usernameController = TextEditingController();
 
   @override
   void dispose() {
     super.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+    _bioController.dispose();
+    _usernameController.dispose();
   }
 
   @override
@@ -39,8 +42,17 @@ class _LoginScreenState extends State<LoginScreen> {
               color: primaryColor,
               height: 64,
             ),
-            const SizedBox(height: 64),
-
+            const SizedBox(height: 50),
+            //avatar image
+            Stack(
+              children: const [
+                CircleAvatar(
+                  radius: 64,
+                    backgroundImage: AssetImage("assets/anime.jpg",),
+                )
+              ],
+            ),
+            const SizedBox(height: 50),
             //text input email
             TextFieldInput(
                 textEditingController: _emailController,
@@ -49,12 +61,31 @@ class _LoginScreenState extends State<LoginScreen> {
             const SizedBox(
               height: 24,
             ),
+
             //text in put pass
             TextFieldInput(
                 textEditingController: _passwordController,
                 hintText: 'Nhập mật khẩu',
                 textInputType: TextInputType.text,
                 isPass: true),
+            const SizedBox(
+              height: 24,
+            ),
+
+            //text username
+            TextFieldInput(
+                textEditingController: _usernameController,
+                hintText: 'Nhập tên',
+                textInputType: TextInputType.text),
+            const SizedBox(
+              height: 24,
+            ),
+
+            //text bio
+            TextFieldInput(
+                textEditingController: _bioController,
+                hintText: 'Nhập giới thiệu',
+                textInputType: TextInputType.text),
             const SizedBox(
               height: 24,
             ),
@@ -70,7 +101,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       borderRadius: BorderRadius.all(Radius.circular(4))),
                   color: blueColor,
                 ),
-                child: const Text('Đăng nhập'),
+                child: const Text('Đăng kí'),
               ),
             ),
             const SizedBox(
@@ -83,19 +114,17 @@ class _LoginScreenState extends State<LoginScreen> {
               children: [
                 Container(
                   padding: const EdgeInsets.symmetric(vertical: 8),
-                  child: const Text('Bạn chưa có tài khoản ? '),
+                  child: const Text('Bạn đã có tài khoản ? '),
                 ),
                 GestureDetector(
-                  onTap: () {},
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 8),
-                    child: const Text(
-                      'Đăng kí',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  )
-
-                )
+                    onTap: () {},
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      child: const Text(
+                        'Đăng nhập',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ))
               ],
             )
           ],

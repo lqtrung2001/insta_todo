@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:insta_todo/screens/login_screen.dart';
+import 'package:insta_todo/screens/signup_screen.dart';
 import 'package:insta_todo/utils/colors.dart';
 
 void main() {
@@ -17,7 +18,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData.dark().copyWith(
         scaffoldBackgroundColor: mobileBackgroundColor,
       ),
-      home: LoginScreen(),
+      home: SignupScreen(),
     );
   }
 }
