@@ -8,7 +8,7 @@ import 'package:insta_todo/screens/login_screen.dart';
 import 'package:insta_todo/screens/signup_screen.dart';
 import 'package:insta_todo/screens/profile_screen.dart';
 import 'package:insta_todo/screens/search_screen.dart';
-
+import 'package:insta_todo/widgets/post.dart';
 
 void main() {
   runApp(const MyApp());
@@ -25,7 +25,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData.dark().copyWith(
         scaffoldBackgroundColor: mobileBackgroundColor,
       ),
-      home: CommentsScreen(),
+      home: LoginScreen(),
     );
   }
 }

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:insta_todo/screens/comments_screen.dart';
 import 'package:insta_todo/screens/login_screen.dart';
+import 'package:insta_todo/screens/profile_screen.dart';
 import 'package:insta_todo/utils/colors.dart';
+import 'package:insta_todo/widgets/post.dart';
 
 class PostCard extends StatelessWidget {
   const PostCard({Key? key}) : super(key: key);
@@ -22,10 +24,16 @@ class PostCard extends StatelessWidget {
             ).copyWith(right: 0),
             child: Row(
               children: [
-                CircleAvatar(
-                  backgroundImage: NetworkImage(
-                      'https://i.guim.co.uk/img/media/26392d05302e02f7bf4eb143bb84c8097d09144b/446_167_3683_2210/master/3683.jpg?width=1200&quality=85&auto=format&fit=max&s=a52bbe202f57ac0f5ff7f47166906403'),
-                  radius: 16,
+                InkWell(
+                  child: CircleAvatar(
+                    backgroundImage: NetworkImage(
+                        'https://i.guim.co.uk/img/media/26392d05302e02f7bf4eb143bb84c8097d09144b/446_167_3683_2210/master/3683.jpg?width=1200&quality=85&auto=format&fit=max&s=a52bbe202f57ac0f5ff7f47166906403'),
+                    radius: 16,
+                  ),
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                        builder: (context) => ProfileScreen(user_id: '1')),
+                  ),
                 ),
                 Expanded(
                   child: Padding(
@@ -80,12 +88,35 @@ class PostCard extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(
-            height: MediaQuery.of(context).size.height * 0.35,
-            width: double.infinity,
-            child: Image.network(
-              'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Image_created_with_a_mobile_phone.png/800px-Image_created_with_a_mobile_phone.png',
-              fit: BoxFit.cover,
+          InkWell(
+            child: Container(
+              child: SizedBox(
+                height: MediaQuery.of(context).size.height * 0.35,
+                width: double.infinity,
+                child: Image.network(
+                  'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Image_created_with_a_mobile_phone.png/800px-Image_created_with_a_mobile_phone.png',
+                  fit: BoxFit.cover,
+                ),
+              ),
+              padding: const EdgeInsets.symmetric(vertical: 4),
+            ),
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => PostScreen(
+                  userImage:
+                      'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Image_created_with_a_mobile_phone.png/800px-Image_created_with_a_mobile_phone.png',
+                  caption: 'I have a beautiful cat',
+                  imageUrl:
+                      'https://i.guim.co.uk/img/media/26392d05302e02f7bf4eb143bb84c8097d09144b/446_167_3683_2210/master/3683.jpg?width=1200&quality=85&auto=format&fit=max&s=a52bbe202f57ac0f5ff7f47166906403',
+                  comments: '200',
+                  username: 'username',
+                  timeAgo: '2 dáy ago',
+                  likes: '112',
+                  shares: '32',
+                  profileImage:
+                      'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Image_created_with_a_mobile_phone.png/800px-Image_created_with_a_mobile_phone.png',
+                ),
+              ),
             ),
           ),
           Row(

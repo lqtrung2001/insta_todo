@@ -16,7 +16,7 @@ class _CommentsScreenState extends State<CommentsScreen> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: mobileBackgroundColor,
-        title: const Text('Bình luận'),
+        title: const Text('Comment'),
         centerTitle: false,
       ),
       body: CommentCard(),
@@ -39,7 +39,7 @@ class _CommentsScreenState extends State<CommentsScreen> {
                   padding: EdgeInsets.only(left: 16, right: 8),
                   child: TextField(
                     decoration: InputDecoration(
-                      hintText: 'Bình luận',
+                      hintText: 'Comment',
                       border: InputBorder.none,
                     ),
                   ),
