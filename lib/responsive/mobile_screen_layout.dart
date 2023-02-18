@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:insta_todo/screens/feed_screen.dart';
 import 'package:insta_todo/screens/profile_screen.dart';
 import 'package:insta_todo/screens/search_screen.dart';
 import 'package:insta_todo/utils/colors.dart';
@@ -44,7 +45,7 @@ class _MobileScreenLayoutState extends State<MobileScreenLayout> {
     return Scaffold(
       body: PageView(
         children: [
-          Text('home'),
+          FeedScreen(),
           SearchScreen(),
           Text('add'),
           Text('favorite'),
