@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:insta_todo/screens/login_screen.dart';
 
 import 'package:insta_todo/utils/colors.dart';
 import 'package:insta_todo/widgets/text_field_input.dart';
@@ -117,7 +118,9 @@ class _SignupScreenState extends State<SignupScreen> {
                   child: const Text('Bạn đã có tài khoản ? '),
                 ),
                 GestureDetector(
-                    onTap: () {},
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(builder: (context) => LoginScreen()),
+                    ),
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 8),
                       child: const Text(
