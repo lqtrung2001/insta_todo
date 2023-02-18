@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:insta_todo/responsive/mobile_screen_layout.dart';
+import 'package:insta_todo/screens/comments_screen.dart';
 import 'package:insta_todo/screens/search_screen.dart';
 import 'package:insta_todo/utils/colors.dart';
 
@@ -24,7 +25,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData.dark().copyWith(
         scaffoldBackgroundColor: mobileBackgroundColor,
       ),
-      home: MobileScreenLayout(),
+      home: CommentsScreen(),
     );
   }
 }
