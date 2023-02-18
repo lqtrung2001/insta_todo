@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:insta_todo/screens/comments_screen.dart';
 import 'package:insta_todo/screens/login_screen.dart';
 import 'package:insta_todo/utils/colors.dart';
 
@@ -157,7 +158,7 @@ class PostCard extends StatelessWidget {
               padding: const EdgeInsets.symmetric(vertical: 4),
             ),
             onTap: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (context) => LoginScreen()),
+              MaterialPageRoute(builder: (context) => CommentsScreen()),
             ),
           ),
           Container(

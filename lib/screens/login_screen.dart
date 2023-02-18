@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:insta_todo/responsive/mobile_screen_layout.dart';
 
 import 'package:insta_todo/utils/colors.dart';
 import 'package:insta_todo/widgets/text_field_input.dart';
@@ -61,6 +62,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
             // nút đăng nhập
             InkWell(
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (context) => MobileScreenLayout()),
+              ),
               child: Container(
                 width: double.infinity,
                 alignment: Alignment.center,
@@ -86,16 +90,14 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: const Text('Bạn chưa có tài khoản ? '),
                 ),
                 GestureDetector(
-                  onTap: () {},
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 8),
-                    child: const Text(
-                      'Đăng kí',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  )
-
-                )
+                    onTap: () {},
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      child: const Text(
+                        'Đăng kí',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ))
               ],
             )
           ],
