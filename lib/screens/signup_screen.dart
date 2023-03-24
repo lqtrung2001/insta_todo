@@ -1,8 +1,14 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:insta_todo/resources/auth_methods.dart';
+import 'package:insta_todo/responsive/mobile_screen_layout.dart';
+import 'package:insta_todo/responsive/responsive_layout.dart';
 import 'package:insta_todo/screens/login_screen.dart';
 
 import 'package:insta_todo/utils/colors.dart';
+import 'package:insta_todo/utils/utils.dart';
 import 'package:insta_todo/widgets/text_field_input.dart';
 
 class SignupScreen extends StatefulWidget {
@@ -17,6 +23,8 @@ class _SignupScreenState extends State<SignupScreen> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _bioController = TextEditingController();
   final TextEditingController _usernameController = TextEditingController();
+  bool _isLoading = false;
+  Uint8List? _image;
 
   @override
   void dispose() {
@@ -26,6 +34,55 @@ class _SignupScreenState extends State<SignupScreen> {
     _bioController.dispose();
     _usernameController.dispose();
   }
+
+  void signUpUser() async {
+    // set loading to true
+    setState(() {
+      _isLoading = true;
+    });
+
+    if (_image==null) {
+      _image = Uint8List(0);
+    }
+
+    // signup user using our authmethodds
+    String res = await AuthMethods().signUpUser(
+        email: _emailController.text,
+        password: _passwordController.text,
+        username: _usernameController.text,
+        bio: _bioController.text,
+        file: _image!);
+    // if string returned is sucess, user has been created
+    if (res == "success") {
+      setState(() {
+        _isLoading = false;
+      });
+      // navigate to the home screen
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => const ResponsiveLayout(
+            mobileScreenLayout: MobileScreenLayout(),
+          ),
+        ),
+      );
+    } else {
+      setState(() {
+        _isLoading = false;
+      });
+      // show the error
+      showSnackBar(context, res);
+    }
+  }
+
+  selectImage() async {
+    Uint8List im = await pickImage(ImageSource.gallery);
+    // set state because we need to display the image we selected on the circle avatar
+    setState(() {
+      _image = im;
+    });
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -46,10 +103,26 @@ class _SignupScreenState extends State<SignupScreen> {
             const SizedBox(height: 50),
             //avatar image
             Stack(
-              children: const [
-                CircleAvatar(
+              children: [
+                _image != null
+                    ? CircleAvatar(
                   radius: 64,
-                    backgroundImage: AssetImage("assets/anime.jpg",),
+                  backgroundImage: MemoryImage(_image!),
+                  backgroundColor: Colors.red,
+                )
+                    : const CircleAvatar(
+                  radius: 64,
+                  backgroundImage: NetworkImage(
+                      'https://i.stack.imgur.com/l60Hf.png'),
+                  backgroundColor: Colors.red,
+                ),
+                Positioned(
+                  bottom: -10,
+                    left: 80,
+                    child: IconButton(
+                        onPressed: selectImage,
+                        icon: const Icon(Icons.add_a_photo)
+                    )
                 )
               ],
             ),
@@ -93,6 +166,7 @@ class _SignupScreenState extends State<SignupScreen> {
 
             // nút đăng nhập
             InkWell(
+              onTap: signUpUser,
               child: Container(
                 width: double.infinity,
                 alignment: Alignment.center,

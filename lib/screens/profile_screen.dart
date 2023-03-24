@@ -1,4 +1,8 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:insta_todo/resources/auth_methods.dart';
+import 'package:insta_todo/resources/firestore_methods.dart';
+import 'package:insta_todo/screens/login_screen.dart';
 import 'package:insta_todo/utils/colors.dart';
 import 'package:insta_todo/widgets/follow_button.dart';
 
@@ -12,6 +16,10 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  bool isFollowing = false;
+  var userData = {};
+  int followers = 0;
+  int following = 0;
   @override
   void initState() {
     // TODO: implement initState
@@ -57,11 +65,64 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: [
-                                FollowButton(
-                                  backroundColor: mobileBackgroundColor,
-                                  borderColor: Colors.white,
+                                FirebaseAuth.instance.currentUser!.uid ==
+                                    // widget.user_id
+                                    FirebaseAuth.instance.currentUser!.uid
+                                    ? FollowButton(
+                                  text: 'Sign Out',
+                                  backroundColor:
+                                  mobileBackgroundColor,
                                   textColor: primaryColor,
-                                  text: 'Edit profile',
+                                  borderColor: Colors.grey,
+                                  function: () async {
+                                    await AuthMethods().signOut();
+                                    Navigator.of(context)
+                                        .pushReplacement(
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                        const LoginScreen(),
+                                      ),
+                                    );
+                                  },
+                                )
+                                    : isFollowing
+                                    ? FollowButton(
+                                  text: 'Unfollow',
+                                  backroundColor: Colors.white,
+                                  textColor: Colors.black,
+                                  borderColor: Colors.grey,
+                                  function: () async {
+                                    await FireStoreMethods()
+                                        .followUser(
+                                      FirebaseAuth.instance
+                                          .currentUser!.uid,
+                                      userData['uid'],
+                                    );
+
+                                    setState(() {
+                                      isFollowing = false;
+                                      followers--;
+                                    });
+                                  },
+                                )
+                                    : FollowButton(
+                                  text: 'Follow',
+                                  backroundColor: Colors.blue,
+                                  textColor: Colors.white,
+                                  borderColor: Colors.blue,
+                                  function: () async {
+                                    await FireStoreMethods()
+                                        .followUser(
+                                      FirebaseAuth.instance
+                                          .currentUser!.uid,
+                                      userData['uid'],
+                                    );
+
+                                    setState(() {
+                                      isFollowing = true;
+                                      followers++;
+                                    });
+                                  },
                                 )
                               ],
                             )
