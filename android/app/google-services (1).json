@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "999053983827",
+    "project_id": "insta-todo",
+    "storage_bucket": "insta-todo.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:999053983827:android:e2a42cbf9fc6651ea386a6",
+        "android_client_info": {
+          "package_name": "com.example.insta_todo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "999053983827-mq6egg88ppbsg0dnqtl5girdn6hf06ue.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBwNfxkqnj0Kmc9XpbbYS0YCCP-XCm84DQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "999053983827-mq6egg88ppbsg0dnqtl5girdn6hf06ue.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
