@@ -1,10 +1,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.insta_todo">
+    package="com.example.insta_todo"><uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
    <application
         android:label="insta_todo"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
-        <activity
+       <receiver android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver"
+           android:exported="true">
+       </receiver>
+       <activity
             android:name=".MainActivity"
             android:exported="true"
             android:launchMode="singleTop"
