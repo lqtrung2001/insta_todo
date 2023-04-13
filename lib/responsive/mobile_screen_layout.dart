@@ -1,8 +1,11 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:insta_todo/screens/add_post_screen.dart';
 import 'package:insta_todo/screens/feed_screen.dart';
 import 'package:insta_todo/screens/profile_screen.dart';
 import 'package:insta_todo/screens/search_screen.dart';
+import 'package:insta_todo/screens/todo_screen.dart';
 import 'package:insta_todo/utils/colors.dart';
 
 class MobileScreenLayout extends StatefulWidget {
@@ -47,10 +50,10 @@ class _MobileScreenLayoutState extends State<MobileScreenLayout> {
         children: [
           FeedScreen(),
           SearchScreen(),
-          Text('add'),
+          AddPostScreen(),
           Text('favorite'),
-          ProfileScreen(user_id: '1'),
-          Text('schedule')
+          ProfileScreen(user_id: FirebaseAuth.instance.currentUser!.uid,),
+          MyToDo()
         ],
         physics: NeverScrollableScrollPhysics(),
         controller: pageController,

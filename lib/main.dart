@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 import 'package:flutter/material.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:insta_todo/providers/user_provider.dart';
 import 'package:insta_todo/responsive/mobile_screen_layout.dart';
 import 'package:insta_todo/responsive/responsive_layout.dart';
@@ -18,6 +19,7 @@ import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await GetStorage.init();
 
   // initialise app based on platform- web or mobile
   await Firebase.initializeApp(
