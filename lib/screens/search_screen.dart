@@ -1,7 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:insta_todo/utils/colors.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-import 'package:insta_todo/screens/profile_screen.dart';
+import 'package:insta_todo/utils/colors.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({Key? key}) : super(key: key);
@@ -21,38 +21,44 @@ class _SearchScreenState extends State<SearchScreen> {
         backgroundColor: mobileBackgroundColor,
         title: TextFormField(
           controller: searchController,
-          decoration: const InputDecoration(
-            labelText: 'Search for a user',
-          ),
+          decoration: const InputDecoration(labelText: 'Search for a user'),
           onFieldSubmitted: (String _) {
-            if (searchController.text.isNotEmpty) {
-              setState(() {
-                isShowUser = true;
-              });
-            } else {
-              setState(() {
-                isShowUser = false;
-              });
-            }
-            print(_);
-            print(isShowUser);
+            setState(() {
+              isShowUser = true;
+            });
           },
         ),
       ),
       body: isShowUser
           ? FutureBuilder(
+              future: FirebaseFirestore.instance
+                  .collection('users')
+                  .where(
+                    'username',
+                    isGreaterThanOrEqualTo: searchController.text,
+                  )
+                  .get(),
               builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }
                 return ListView.builder(
-                  itemCount: 5,
+                  itemCount: (snapshot.data! as dynamic).docs.length,
                   itemBuilder: (context, index) {
-                    return ListTile(
-                      leading: CircleAvatar(
-                        backgroundImage: NetworkImage(
-                            'https://i.guim.co.uk/img/media/26392d05302e02f7bf4eb143bb84c8097d09144b/446_167_3683_2210/master/3683.jpg?width=1200&quality=85&auto=format&fit=max&s=a52bbe202f57ac0f5ff7f47166906403'),
-                        radius: 16,
-                      ),
-                      title: Text(
-                        'username',
+                    return InkWell(
+                      onTap: () => {},
+                      child: ListTile(
+                        leading: CircleAvatar(
+                          backgroundImage: NetworkImage(
+                            (snapshot.data! as dynamic).docs[index]['photoUrl'],
+                          ),
+                          radius: 16,
+                        ),
+                        title: Text(
+                          (snapshot.data! as dynamic).docs[index]['username'],
+                        ),
                       ),
                     );
                   },
@@ -60,27 +66,26 @@ class _SearchScreenState extends State<SearchScreen> {
               },
             )
           : FutureBuilder(
+              future: FirebaseFirestore.instance.collection('posts').get(),
               builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return const Center(
+                    child: const CircularProgressIndicator(),
+                  );
+                }
                 return StaggeredGridView.countBuilder(
                   crossAxisCount: 3,
-                  itemCount: 10,
+                  itemCount: (snapshot.data! as dynamic).docs.length,
                   itemBuilder: (context, index) => Image.network(
-                    'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Image_created_with_a_mobile_phone.png/800px-Image_created_with_a_mobile_phone.png',
-                    fit: BoxFit.cover,
+                      (snapshot.data! as dynamic).docs[index]['postUrl']),
+                  staggeredTileBuilder: (index) => StaggeredTile.count(
+                    (index % 7 == 0) ? 2 : 1,
+                    (index % 7 == 0) ? 2 : 1,
                   ),
-                  staggeredTileBuilder: (index) => MediaQuery.of(context)
-                              .size
-                              .width >
-                          600
-                      ? StaggeredTile.count(
-                          (index % 7 == 0) ? 1 : 1, (index % 7 == 0) ? 1 : 1)
-                      : StaggeredTile.count(
-                          (index % 7 == 0) ? 2 : 1, (index % 7 == 0) ? 2 : 1),
                   mainAxisSpacing: 8.0,
                   crossAxisSpacing: 8.0,
                 );
-              },
-            ),
+              }),
     );
   }
 }
