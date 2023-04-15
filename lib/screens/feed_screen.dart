@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:insta_todo/utils/colors.dart';
@@ -37,16 +38,26 @@ class _FeedScreenState extends State<FeedScreen> {
               ],
             ),
       body: StreamBuilder(
-        builder: (context, snapshot) {
+        stream: FirebaseFirestore.instance.collection('posts').snapshots(),
+        builder: (context,
+            AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
           return ListView.builder(
-              itemCount: 4,
-              itemBuilder: (ctx, index) => Container(
-                    margin: EdgeInsets.symmetric(
-                      horizontal: width > 600 ? width * 0.3 : 0,
-                      vertical: width > 600 ? 15 : 0,
-                    ),
-                    child: PostCard(),
-                  ));
+            itemCount: snapshot.data!.docs.length,
+            itemBuilder: (ctx, index) => Container(
+              margin: EdgeInsets.symmetric(
+                horizontal: width > 600 ? width * 0.3 : 0,
+                vertical: width > 600 ? 15 : 0,
+              ),
+              child: PostCard(
+                snap: snapshot.data!.docs[index].data(),
+              ),
+            ),
+          );
         },
       ),
     );

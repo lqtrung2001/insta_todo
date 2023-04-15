@@ -1,38 +1,98 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:insta_todo/resources/firestore_methods.dart';
 import 'package:insta_todo/screens/comments_screen.dart';
 import 'package:insta_todo/screens/login_screen.dart';
 import 'package:insta_todo/screens/profile_screen.dart';
 import 'package:insta_todo/utils/colors.dart';
+import 'package:insta_todo/utils/utils.dart';
+import 'package:insta_todo/widgets/like_animation.dart';
 import 'package:insta_todo/widgets/post.dart';
+import 'package:insta_todo/models/users.dart' as model;
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
-class PostCard extends StatelessWidget {
-  const PostCard({Key? key}) : super(key: key);
+import '../providers/user_provider.dart';
+
+class PostCard extends StatefulWidget {
+  final snap;
+  const PostCard({
+    Key? key,
+    required this.snap,
+  }) : super(key: key);
+
+  @override
+  State<PostCard> createState() => _PostCardState();
+}
+
+class _PostCardState extends State<PostCard> {
+  int commentLen = 0;
+  bool isLikeAnimating = false;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchCommentLen();
+  }
+
+  fetchCommentLen() async {
+    try {
+      QuerySnapshot snap = await FirebaseFirestore.instance
+          .collection('posts')
+          .doc(widget.snap['postId'])
+          .collection('comments')
+          .get();
+      commentLen = snap.docs.length;
+    } catch (err) {
+      showSnackBar(
+        context,
+        err.toString(),
+      );
+    }
+    setState(() {});
+  }
+
+  deletePost(String postId) async {
+    try {
+      await FireStoreMethods().deletePost(postId);
+    } catch (err) {
+      showSnackBar(
+        context,
+        err.toString(),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    final model.User user = Provider.of<UserProvider>(context).getUser;
+    final width = MediaQuery.of(context).size.width;
+
     return Container(
-      color: mobileBackgroundColor,
+      // boundary needed for web
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: width > 600 ? secondaryColor : mobileBackgroundColor,
+        ),
+        color: mobileBackgroundColor,
+      ),
       padding: const EdgeInsets.symmetric(
         vertical: 10,
       ),
       child: Column(
         children: [
+          // HEADER SECTION OF THE POST
           Container(
             padding: const EdgeInsets.symmetric(
               vertical: 4,
               horizontal: 16,
             ).copyWith(right: 0),
             child: Row(
-              children: [
-                InkWell(
-                  child: CircleAvatar(
-                    backgroundImage: NetworkImage(
-                        'https://i.guim.co.uk/img/media/26392d05302e02f7bf4eb143bb84c8097d09144b/446_167_3683_2210/master/3683.jpg?width=1200&quality=85&auto=format&fit=max&s=a52bbe202f57ac0f5ff7f47166906403'),
-                    radius: 16,
-                  ),
-                  onTap: () => Navigator.of(context).push(
-                    MaterialPageRoute(
-                        builder: (context) => ProfileScreen(user_id: '1')),
+              children: <Widget>[
+                CircleAvatar(
+                  radius: 16,
+                  backgroundImage: NetworkImage(
+                    widget.snap['profImage'].toString(),
                   ),
                 ),
                 Expanded(
@@ -41,19 +101,21 @@ class PostCard extends StatelessWidget {
                       left: 8,
                     ),
                     child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'username',
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                            ),
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text(
+                          widget.snap['username'].toString(),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
                           ),
-                        ]),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-                IconButton(
+                widget.snap['uid'].toString() == user.uid
+                    ? IconButton(
                   onPressed: () {
                     showDialog(
                       useRootNavigator: false,
@@ -61,23 +123,30 @@ class PostCard extends StatelessWidget {
                       builder: (context) {
                         return Dialog(
                           child: ListView(
-                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 16),
                               shrinkWrap: true,
                               children: [
                                 'Delete',
                               ]
                                   .map(
                                     (e) => InkWell(
-                                        child: Container(
-                                          padding: const EdgeInsets.symmetric(
-                                              vertical: 12, horizontal: 16),
-                                          child: Text(e),
-                                        ),
-                                        onTap: () {
-                                          // remove the dialog box
-                                          Navigator.of(context).pop();
-                                        }),
-                                  )
+                                    child: Container(
+                                      padding:
+                                      const EdgeInsets.symmetric(
+                                          vertical: 12,
+                                          horizontal: 16),
+                                      child: Text(e),
+                                    ),
+                                    onTap: () {
+                                      deletePost(
+                                        widget.snap['postId']
+                                            .toString(),
+                                      );
+                                      // remove the dialog box
+                                      Navigator.of(context).pop();
+                                    }),
+                              )
                                   .toList()),
                         );
                       },
@@ -85,122 +154,173 @@ class PostCard extends StatelessWidget {
                   },
                   icon: const Icon(Icons.more_vert),
                 )
+                    : Container(),
               ],
             ),
           ),
-          InkWell(
-            child: Container(
-              child: SizedBox(
-                height: MediaQuery.of(context).size.height * 0.35,
-                width: double.infinity,
-                child: Image.network(
-                  'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Image_created_with_a_mobile_phone.png/800px-Image_created_with_a_mobile_phone.png',
-                  fit: BoxFit.cover,
+          // IMAGE SECTION OF THE POST
+          GestureDetector(
+            onDoubleTap: () {
+              FireStoreMethods().likePost(
+                widget.snap['postId'].toString(),
+                user.uid,
+                widget.snap['likes'],
+              );
+              setState(() {
+                isLikeAnimating = true;
+              });
+            },
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.35,
+                  width: double.infinity,
+                  child: Image.network(
+                    widget.snap['postUrl'].toString(),
+                    fit: BoxFit.cover,
+                  ),
                 ),
-              ),
-              padding: const EdgeInsets.symmetric(vertical: 4),
-            ),
-            onTap: () => Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => PostScreen(
-                  userImage:
-                      'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Image_created_with_a_mobile_phone.png/800px-Image_created_with_a_mobile_phone.png',
-                  caption: 'I have a beautiful cat',
-                  imageUrl:
-                      'https://i.guim.co.uk/img/media/26392d05302e02f7bf4eb143bb84c8097d09144b/446_167_3683_2210/master/3683.jpg?width=1200&quality=85&auto=format&fit=max&s=a52bbe202f57ac0f5ff7f47166906403',
-                  comments: '200',
-                  username: 'username',
-                  timeAgo: '2 dáy ago',
-                  likes: '112',
-                  shares: '32',
-                  profileImage:
-                      'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Image_created_with_a_mobile_phone.png/800px-Image_created_with_a_mobile_phone.png',
+                AnimatedOpacity(
+                  duration: const Duration(milliseconds: 200),
+                  opacity: isLikeAnimating ? 1 : 0,
+                  child: LikeAnimation(
+                    isAnimating: isLikeAnimating,
+                    child: const Icon(
+                      Icons.favorite,
+                      color: Colors.white,
+                      size: 100,
+                    ),
+                    duration: const Duration(
+                      milliseconds: 400,
+                    ),
+                    onEnd: () {
+                      setState(() {
+                        isLikeAnimating = false;
+                      });
+                    },
+                  ),
                 ),
-              ),
+              ],
             ),
           ),
+          // LIKE, COMMENT SECTION OF THE POST
           Row(
-            children: [
-              IconButton(
-                  onPressed: () {},
-                  icon: const Icon(
+            children: <Widget>[
+              LikeAnimation(
+                isAnimating: widget.snap['likes'].contains(user.uid),
+                smallLike: true,
+                child: IconButton(
+                  icon: widget.snap['likes'].contains(user.uid)
+                      ? const Icon(
                     Icons.favorite,
                     color: Colors.red,
-                  )),
-              IconButton(
-                  onPressed: () {}, icon: const Icon(Icons.comment_outlined)),
-              IconButton(onPressed: () {}, icon: const Icon(Icons.send)),
-              Expanded(
-                  child: Align(
-                alignment: Alignment.bottomRight,
-                child: IconButton(
-                    onPressed: () {}, icon: const Icon(Icons.bookmark_border)),
-              ))
-            ],
-          ),
-          Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  DefaultTextStyle(
-                      style: Theme.of(context)
-                          .textTheme
-                          .subtitle2!
-                          .copyWith(fontWeight: FontWeight.w800),
-                      child: Text(
-                        '1.1234 likes',
-                        style: Theme.of(context).textTheme.bodyText2,
-                      )),
-                ],
-              )),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.only(
-              top: 8,
-            ),
-            child: RichText(
-              text: TextSpan(
-                style: const TextStyle(color: primaryColor),
-                children: [
-                  TextSpan(
-                    text: 'username',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                    ),
+                  )
+                      : const Icon(
+                    Icons.favorite_border,
                   ),
-                  TextSpan(
-                    text: '  description',
+                  onPressed: () => FireStoreMethods().likePost(
+                    widget.snap['postId'].toString(),
+                    user.uid,
+                    widget.snap['likes'],
                   ),
-                ],
-              ),
-            ),
-          ),
-          InkWell(
-            child: Container(
-              child: Text(
-                'View all 200 comments',
-                style: const TextStyle(
-                  fontSize: 16,
-                  color: secondaryColor,
                 ),
               ),
-              padding: const EdgeInsets.symmetric(vertical: 4),
-            ),
-            onTap: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (context) => CommentsScreen()),
-            ),
-          ),
-          Container(
-            child: Text(
-              '18/02/2023',
-              style: const TextStyle(
-                color: secondaryColor,
+              IconButton(
+                icon: const Icon(
+                  Icons.comment_outlined,
+                ),
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => CommentsScreen(
+                      // postId: widget.snap['postId'].toString(),
+                    ),
+                  ),
+                ),
               ),
-            ),
-            padding: const EdgeInsets.symmetric(vertical: 4),
+              IconButton(
+                  icon: const Icon(
+                    Icons.send,
+                  ),
+                  onPressed: () {}),
+              Expanded(
+                  child: Align(
+                    alignment: Alignment.bottomRight,
+                    child: IconButton(
+                        icon: const Icon(Icons.bookmark_border), onPressed: () {}),
+                  ))
+            ],
           ),
+          //DESCRIPTION AND NUMBER OF COMMENTS
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                DefaultTextStyle(
+                    style: Theme.of(context)
+                        .textTheme
+                        .subtitle2!
+                        .copyWith(fontWeight: FontWeight.w800),
+                    child: Text(
+                      '${widget.snap['likes'].length} likes',
+                      style: Theme.of(context).textTheme.bodyText2,
+                    )),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.only(
+                    top: 8,
+                  ),
+                  child: RichText(
+                    text: TextSpan(
+                      style: const TextStyle(color: primaryColor),
+                      children: [
+                        TextSpan(
+                          text: widget.snap['username'].toString(),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        TextSpan(
+                          text: ' ${widget.snap['description']}',
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                InkWell(
+                  child: Container(
+                    child: Text(
+                      'View all $commentLen comments',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        color: secondaryColor,
+                      ),
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                  ),
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => CommentsScreen(
+                        // postId: widget.snap['postId'].toString(),
+                      ),
+                    ),
+                  ),
+                ),
+                Container(
+                  child: Text(
+                    DateFormat.yMMMd()
+                        .format(widget.snap['datePublished'].toDate()),
+                    style: const TextStyle(
+                      color: secondaryColor,
+                    ),
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 4),
+                ),
+              ],
+            ),
+          )
         ],
       ),
     );
