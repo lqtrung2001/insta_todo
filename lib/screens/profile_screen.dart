@@ -4,6 +4,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:insta_todo/resources/auth_methods.dart';
 import 'package:insta_todo/resources/firestore_methods.dart';
+import 'package:insta_todo/screens/following_screen.dart';
 import 'package:insta_todo/screens/login_screen.dart';
 import 'package:insta_todo/utils/colors.dart';
 import 'package:insta_todo/utils/utils.dart';
@@ -105,9 +106,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceEvenly,
                                     children: [
-                                      buildStateColum(postLen, "posts"),
-                                      buildStateColum(followers, "flowers"),
-                                      buildStateColum(following, "flowing"),
+                                      InkWell(
+                                          onTap: () {},
+                                          child: buildStateColum(
+                                              postLen, "posts")),
+                                      InkWell(
+                                          onTap: () => Navigator.of(context).push(
+                                            MaterialPageRoute(builder: (context) => FollowingScreen(user_id: userData['uid'].toString(), isFollower: true, current_user_id: FirebaseAuth.instance.currentUser!.uid,)),
+                                          ),
+                                          child: buildStateColum(
+                                              followers, "flowers")),
+                                      InkWell(
+                                          onTap: () => Navigator.of(context).push(
+                                            MaterialPageRoute(builder: (context) => FollowingScreen(user_id: userData['uid'].toString(), isFollower: false, current_user_id: FirebaseAuth.instance.currentUser!.uid,)),
+                                          ),
+                                          child: buildStateColum(
+                                              following, "flowing")),
                                     ],
                                   ),
                                   Row(
@@ -116,11 +130,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     children: [
                                       FirebaseAuth.instance.currentUser!.uid ==
                                               // widget.user_id
-                                              FirebaseAuth
-                                                  .instance.currentUser!.uid
+                                              userData['uid']
                                           ? FollowButton(
                                               text: 'Sign Out',
-                                              backroundColor:
+                                              backgroundColor:
                                                   mobileBackgroundColor,
                                               textColor: primaryColor,
                                               borderColor: Colors.grey,
@@ -138,7 +151,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           : isFollowing
                                               ? FollowButton(
                                                   text: 'Unfollow',
-                                                  backroundColor: Colors.white,
+                                                  backgroundColor: Colors.white,
                                                   textColor: Colors.black,
                                                   borderColor: Colors.grey,
                                                   function: () async {
@@ -157,7 +170,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                 )
                                               : FollowButton(
                                                   text: 'Follow',
-                                                  backroundColor: Colors.blue,
+                                                  backgroundColor: Colors.blue,
                                                   textColor: Colors.white,
                                                   borderColor: Colors.blue,
                                                   function: () async {

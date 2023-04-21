@@ -271,7 +271,7 @@ class _PostStats extends StatelessWidget {
               ),
               label: 'Comment',
               onTap: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (context) => CommentsScreen()),
+                MaterialPageRoute(builder: (context) => CommentsScreen(postId: null,)),
               ),
             ),
             _PostButton(
@@ -309,7 +309,7 @@ class _PostButton extends StatelessWidget {
         color: Colors.white,
         child: InkWell(
           onTap: () => Navigator.of(context).push(
-            MaterialPageRoute(builder: (context) => CommentsScreen()),
+            MaterialPageRoute(builder: (context) => CommentsScreen(postId: 1,)),
           ),
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12.0),
