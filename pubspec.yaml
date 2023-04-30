@@ -44,6 +44,9 @@ dependencies:
   flutter_native_timezone: ^2.0.0
   eosdart: ^0.4.8
   flutter_staggered_animations:
+  stories_editor: ^0.2.2
+  share_plus: ^6.3.2
+  collection: ^1.17.0
 
 dev_dependencies:
   flutter_test:
