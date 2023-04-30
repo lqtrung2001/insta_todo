@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:insta_todo/models/post.dart';
+import 'package:insta_todo/models/story.dart';
 import 'package:insta_todo/resources/storage_methods.dart';
 import 'package:uuid/uuid.dart';
 
@@ -48,6 +49,32 @@ class FireStoreMethods {
         profImage: profImage,
       );
       _firestore.collection('posts').doc(postId).set(post.toJson());
+      res = "success";
+    } catch (err) {
+      res = err.toString();
+    }
+    return res;
+  }
+
+  Future<String> uploadStory(Uint8List file, String uid,
+      String username, String profImage) async {
+    // asking uid here because we dont want to make extra calls to firebase auth when we can just get from our state management
+    String res = "Some error occurred";
+    try {
+      String photoUrl =
+      await StorageMethods().uploadImageToStorage('stories', file, true);
+      String storyId = const Uuid().v1(); // creates unique id based on time
+      Story story = Story(
+        uid: uid,
+        username: username,
+        likes: [],
+        views: [],
+        storyId: storyId,
+        datePublished: DateTime.now(),
+        postUrl: photoUrl,
+        profImage: profImage,
+      );
+      _firestore.collection('stories').doc(storyId).set(story.toJson());
       res = "success";
     } catch (err) {
       res = err.toString();
