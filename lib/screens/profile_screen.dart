@@ -236,23 +236,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           childAspectRatio: 1,
                         ),
                         itemBuilder: (context, index) {
-                          DocumentSnapshot snap =
-                              (snapshot.data! as dynamic).docs[index];
-                          return postLen <= 0
-                              ? Container(
-                                  child: Text(
+                          if(postLen <= 0) {
+                            return Container(
+                                child: Text(
                                   'No post!!!',
                                   style: const TextStyle(
                                       fontSize: 22,
                                       fontWeight: FontWeight.bold,
                                       color: Colors.white),
-                                ))
-                              : Container(
-                                  child: Image(
-                                    image: NetworkImage(snap['postUrl']),
-                                    fit: BoxFit.cover,
-                                  ),
-                                );
+                                ));
+                          } else {
+                            DocumentSnapshot snap =
+                            (snapshot.data! as dynamic).docs[index];
+                            return Container(
+                              child: Image(
+                                image: NetworkImage(snap['postUrl']),
+                                fit: BoxFit.cover,
+                              ),
+                            );
+                          }
+
                         },
                       );
                     })

@@ -10,7 +10,9 @@ import 'package:provider/provider.dart';
 
 class CommentsScreen extends StatefulWidget {
   final postId;
-  const CommentsScreen({Key? key, required this.postId}) : super(key: key);
+  final postUrl;
+  final postOwnerId;
+  const CommentsScreen({Key? key, required this.postId, required this.postUrl, required this.postOwnerId}) : super(key: key);
 
   @override
   _CommentsScreenState createState() => _CommentsScreenState();
@@ -24,6 +26,8 @@ class _CommentsScreenState extends State<CommentsScreen> {
     try {
       String res = await FireStoreMethods().postComment(
         widget.postId,
+        widget.postUrl,
+        widget.postOwnerId,
         commentEditingController.text,
         uid,
         name,

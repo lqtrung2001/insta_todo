@@ -47,6 +47,7 @@ dependencies:
   stories_editor: ^0.2.2
   share_plus: ^6.3.2
   collection: ^1.17.0
+  timeago: ^3.3.0
 
 dev_dependencies:
   flutter_test:

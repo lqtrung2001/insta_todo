@@ -171,6 +171,10 @@ class _PostCardState extends State<PostCard> {
             onDoubleTap: () {
               FireStoreMethods().likePost(
                 widget.snap['postId'].toString(),
+                widget.snap['postUrl'].toString(),
+                widget.snap['uid'].toString(),
+                widget.snap['username'].toString(),
+                widget.snap['profImage'].toString(),
                 user.uid,
                 widget.snap['likes'],
               );
@@ -229,6 +233,10 @@ class _PostCardState extends State<PostCard> {
                         ),
                   onPressed: () => FireStoreMethods().likePost(
                     widget.snap['postId'].toString(),
+                    widget.snap['postUrl'].toString(),
+                    widget.snap['uid'].toString(),
+                    widget.snap['username'].toString(),
+                    widget.snap['profImage'].toString(),
                     user.uid,
                     widget.snap['likes'],
                   ),
@@ -242,6 +250,8 @@ class _PostCardState extends State<PostCard> {
                   MaterialPageRoute(
                     builder: (context) => CommentsScreen(
                       postId: widget.snap['postId'].toString(),
+                      postUrl: widget.snap['postUrl'].toString(),
+                      postOwnerId: widget.snap['uid'].toString(),
                     ),
                   ),
                 ),
@@ -312,6 +322,8 @@ class _PostCardState extends State<PostCard> {
                     MaterialPageRoute(
                       builder: (context) => CommentsScreen(
                         postId: widget.snap['postId'].toString(),
+                        postUrl: widget.snap['postUrl'].toString(),
+                        postOwnerId: widget.snap['uid'].toString(),
                       ),
                     ),
                   ),

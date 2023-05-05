@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:insta_todo/screens/activity_screen.dart';
 import 'package:insta_todo/screens/add_post_screen.dart';
 import 'package:insta_todo/screens/feed_screen.dart';
 import 'package:insta_todo/screens/profile_screen.dart';
@@ -51,7 +52,7 @@ class _MobileScreenLayoutState extends State<MobileScreenLayout> {
           FeedScreen(),
           SearchScreen(),
           AddPostScreen(),
-          Text('favorite'),
+          ActivityScreen(),
           ProfileScreen(user_id: FirebaseAuth.instance.currentUser!.uid,),
           MyToDo()
         ],

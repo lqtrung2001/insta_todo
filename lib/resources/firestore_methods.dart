@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:insta_todo/models/post.dart';
 import 'package:insta_todo/models/story.dart';
 import 'package:insta_todo/resources/storage_methods.dart';
@@ -8,8 +9,9 @@ import 'package:uuid/uuid.dart';
 
 class FireStoreMethods {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final User currentUser = FirebaseAuth.instance.currentUser!;
 
-  Future<String> likePost(String postId, String uid, List likes) async {
+  Future<String> likePost(String postId, String postUrl, String postOwnerId, String name, String profImage,String uid, List likes) async {
     String res = "Some error occurred";
     try {
       if (likes.contains(uid)) {
@@ -22,6 +24,24 @@ class FireStoreMethods {
         _firestore.collection('posts').doc(postId).update({
           'likes': FieldValue.arrayUnion([uid])
         });
+        bool isNotPostOwner = postOwnerId != currentUser.uid;
+        String activityId = const Uuid().v1();
+        if (isNotPostOwner) {
+          _firestore
+              .collection('users')
+              .doc(postOwnerId)
+              .collection('feedItems')
+              .doc(activityId)
+              .set({
+            'type': 'like',
+            'username': name,
+            'userId': currentUser.uid,
+            'userProfileImg': profImage,
+            'postId': postId,
+            'mediaUrl': postUrl,
+            'timestamp': DateTime.now(),
+          });
+        }
       }
       res = 'success';
     } catch (err) {
@@ -29,6 +49,7 @@ class FireStoreMethods {
     }
     return res;
   }
+
 
   Future<String> uploadPost(String description, Uint8List file, String uid,
       String username, String profImage) async {
@@ -114,7 +135,7 @@ class FireStoreMethods {
   }
 
   // Post comment
-  Future<String> postComment(String postId, String text, String uid,
+  Future<String> postComment(String postId, String postUrl, String postOwnerId, String text, String uid,
       String name, String profilePic) async {
     String res = "Some error occurred";
     try {
@@ -134,6 +155,25 @@ class FireStoreMethods {
           'commentId': commentId,
           'datePublished': DateTime.now(),
         });
+        bool isNotPostOwner = postOwnerId != currentUser.uid;
+        if (isNotPostOwner) {
+          String activityId = const Uuid().v1();
+          _firestore
+              .collection('users')
+              .doc(postOwnerId)
+              .collection('feedItems')
+              .doc(activityId)
+              .set({
+            'type': 'comment',
+            'commentData': text,
+            'timestamp': DateTime.now(),
+            'postId': postId,
+            'userId': currentUser.uid,
+            'username': name,
+            'userProfileImg': profilePic,
+            'mediaUrl': postUrl,
+          });
+        }
         res = 'success';
       } else {
         res = "Please enter text";
