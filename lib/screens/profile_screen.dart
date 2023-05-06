@@ -117,15 +117,41 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           child: buildStateColum(
                                               postLen, "posts")),
                                       InkWell(
-                                          onTap: () => Navigator.of(context).push(
-                                            MaterialPageRoute(builder: (context) => FollowingScreen(user_id: userData['uid'].toString(), isFollower: true, current_user_id: FirebaseAuth.instance.currentUser!.uid,)),
-                                          ),
+                                          onTap: () =>
+                                              Navigator.of(context).push(
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        FollowingScreen(
+                                                          user_id:
+                                                              userData['uid']
+                                                                  .toString(),
+                                                          isFollower: true,
+                                                          current_user_id:
+                                                              FirebaseAuth
+                                                                  .instance
+                                                                  .currentUser!
+                                                                  .uid,
+                                                        )),
+                                              ),
                                           child: buildStateColum(
                                               followers, "flowers")),
                                       InkWell(
-                                          onTap: () => Navigator.of(context).push(
-                                            MaterialPageRoute(builder: (context) => FollowingScreen(user_id: userData['uid'].toString(), isFollower: false, current_user_id: FirebaseAuth.instance.currentUser!.uid,)),
-                                          ),
+                                          onTap: () =>
+                                              Navigator.of(context).push(
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        FollowingScreen(
+                                                          user_id:
+                                                              userData['uid']
+                                                                  .toString(),
+                                                          isFollower: false,
+                                                          current_user_id:
+                                                              FirebaseAuth
+                                                                  .instance
+                                                                  .currentUser!
+                                                                  .uid,
+                                                        )),
+                                              ),
                                           child: buildStateColum(
                                               following, "flowing")),
                                     ],
@@ -166,8 +192,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                       FirebaseAuth.instance
                                                           .currentUser!.uid,
                                                       userData['uid'],
-                                                      currentUserData['username'],
-                                                      currentUserData['photoUrl'],
+                                                      currentUserData[
+                                                          'username'],
+                                                      currentUserData[
+                                                          'photoUrl'],
                                                     );
 
                                                     setState(() {
@@ -187,8 +215,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                       FirebaseAuth.instance
                                                           .currentUser!.uid,
                                                       userData['uid'],
-                                                      currentUserData['username'],
-                                                      currentUserData['photoUrl'],
+                                                      currentUserData[
+                                                          'username'],
+                                                      currentUserData[
+                                                          'photoUrl'],
                                                     );
 
                                                     setState(() {
@@ -246,26 +276,38 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           childAspectRatio: 1,
                         ),
                         itemBuilder: (context, index) {
-                          if(postLen <= 0) {
+                          if (postLen <= 0) {
                             return Container(
                                 child: Text(
-                                  'No post!!!',
-                                  style: const TextStyle(
-                                      fontSize: 22,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white),
-                                ));
+                              'No post!!!',
+                              style: const TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white),
+                            ));
                           } else {
                             DocumentSnapshot snap =
-                            (snapshot.data! as dynamic).docs[index];
+                                (snapshot.data! as dynamic).docs[index];
+                            List listPostUrl = snap['postUrl'];
                             return Container(
-                              child: Image(
-                                image: NetworkImage(snap['postUrl']),
-                                fit: BoxFit.cover,
+                              child: Align(
+                                alignment: Alignment.topRight,
+                                child: listPostUrl.length > 1 ? Container(
+                                  padding: EdgeInsets.all(10),
+                                  child: Icon(
+                                    Icons.list,
+                                    color: Colors.white,
+                                  ),
+                                )
+                                : Container(),
+                              ),
+                              decoration: BoxDecoration(
+                                image: DecorationImage(
+                                    image: NetworkImage(listPostUrl[0]),
+                                    fit: BoxFit.cover),
                               ),
                             );
                           }
-
                         },
                       );
                     })

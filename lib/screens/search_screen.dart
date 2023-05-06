@@ -77,7 +77,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   crossAxisCount: 3,
                   itemCount: (snapshot.data! as dynamic).docs.length,
                   itemBuilder: (context, index) => Image.network(
-                      (snapshot.data! as dynamic).docs[index]['postUrl']),
+                      (snapshot.data! as dynamic).docs[index]['postUrl'][0], fit: BoxFit.fill,),
                   staggeredTileBuilder: (index) => StaggeredTile.count(
                     (index % 7 == 0) ? 2 : 1,
                     (index % 7 == 0) ? 2 : 1,

@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:insta_todo/models/post.dart';
 import 'package:insta_todo/models/story.dart';
 import 'package:insta_todo/resources/storage_methods.dart';
+import 'package:multi_image_picker/multi_image_picker.dart';
 import 'package:uuid/uuid.dart';
 
 class FireStoreMethods {
@@ -51,13 +52,17 @@ class FireStoreMethods {
   }
 
 
-  Future<String> uploadPost(String description, Uint8List file, String uid,
+  Future<String> uploadPost(String description, List<Uint8List> listFile, String uid,
       String username, String profImage) async {
     // asking uid here because we dont want to make extra calls to firebase auth when we can just get from our state management
     String res = "Some error occurred";
     try {
-      String photoUrl =
-      await StorageMethods().uploadImageToStorage('posts', file, true);
+      List<String> listPhotoUrl = [];
+      await Future.wait(listFile.map((element) async {
+        String photoUrl = await StorageMethods().uploadImageToStorage('posts', element, true);
+        listPhotoUrl.add(photoUrl);
+      }));
+
       String postId = const Uuid().v1(); // creates unique id based on time
       Post post = Post(
         description: description,
@@ -66,7 +71,7 @@ class FireStoreMethods {
         likes: [],
         postId: postId,
         datePublished: DateTime.now(),
-        postUrl: photoUrl,
+        postUrl: listPhotoUrl,
         profImage: profImage,
       );
       _firestore.collection('posts').doc(postId).set(post.toJson());

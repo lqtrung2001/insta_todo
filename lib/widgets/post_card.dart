@@ -15,6 +15,8 @@ import 'package:provider/provider.dart';
 import '../providers/user_provider.dart';
 import 'package:get/get.dart';
 
+import 'package:carousel_slider/carousel_slider.dart';
+
 class PostCard extends StatefulWidget {
   final snap;
 
@@ -30,7 +32,7 @@ class PostCard extends StatefulWidget {
 class _PostCardState extends State<PostCard> {
   int commentLen = 0;
   bool isLikeAnimating = false;
-
+  int _currentIndex = 0;
   @override
   void initState() {
     super.initState();
@@ -69,6 +71,7 @@ class _PostCardState extends State<PostCard> {
   Widget build(BuildContext context) {
     final model.User user = Provider.of<UserProvider>(context).getUser;
     final width = MediaQuery.of(context).size.width;
+    List imagesList = widget.snap['postUrl'];
 
     return Container(
       // boundary needed for web
@@ -91,7 +94,9 @@ class _PostCardState extends State<PostCard> {
             ).copyWith(right: 0),
             child: GestureDetector(
               onTap: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (context) => ProfileScreen(user_id: widget.snap['uid'].toString())),
+                MaterialPageRoute(
+                    builder: (context) =>
+                        ProfileScreen(user_id: widget.snap['uid'].toString())),
               ),
               // onTap: () => Navigator.of(context).push(MaterialPageRoute(ProfileScreen(user_id: widget.snap['uid'].toString()))) ,
               child: Row(
@@ -171,7 +176,7 @@ class _PostCardState extends State<PostCard> {
             onDoubleTap: () {
               FireStoreMethods().likePost(
                 widget.snap['postId'].toString(),
-                widget.snap['postUrl'].toString(),
+                widget.snap['postUrl'][0].toString(),
                 widget.snap['uid'].toString(),
                 widget.snap['username'].toString(),
                 widget.snap['profImage'].toString(),
@@ -188,10 +193,56 @@ class _PostCardState extends State<PostCard> {
                 SizedBox(
                   height: MediaQuery.of(context).size.height * 0.35,
                   width: double.infinity,
-                  child: Image.network(
-                    widget.snap['postUrl'].toString(),
-                    fit: BoxFit.cover,
+                  child: Column(
+                    children: [
+                      CarouselSlider(
+                        options: CarouselOptions(
+                          autoPlay: false,
+                          enableInfiniteScroll: false,
+                          viewportFraction: 1,
+                          onPageChanged: (index, reason) {
+                            setState(()
+                              {
+                                _currentIndex = index;
+                              },
+                            );
+                          },
+                        ),
+                        items: widget.snap['postUrl']
+                            .map<Widget>((item) => SizedBox(
+                                  width: double.infinity,
+                                  child: Image.network(
+                                    item.toString(),
+                                    fit: BoxFit.fitWidth,
+                                  ),
+                                ))
+                            .toList(),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: imagesList.map((urlOfItem) {
+                          int index = imagesList.indexOf(urlOfItem);
+                          return Container(
+                            width: 10.0,
+                            height: 10.0,
+                            margin: EdgeInsets.symmetric(
+                                vertical: 10.0, horizontal: 2.0),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: _currentIndex == index
+                                  ? Colors.white
+                                  : Colors.grey,
+                            ),
+                          );
+                        }).toList(),
+                      )
+                    ],
                   ),
+
+                  // Image.network(
+                  //   widget.snap['postUrl'][0].toString(),
+                  //   fit: BoxFit.cover,
+                  // ),
                 ),
                 AnimatedOpacity(
                   duration: const Duration(milliseconds: 200),

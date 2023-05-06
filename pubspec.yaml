@@ -45,9 +45,12 @@ dependencies:
   eosdart: ^0.4.8
   flutter_staggered_animations:
   stories_editor: ^0.2.2
-  share_plus: ^6.3.2
+  share_plus: ^4.5.3
   collection: ^1.17.0
   timeago: ^3.3.0
+  numberpicker: ^2.1.2
+  multi_image_picker: ^4.8.01
+  carousel_slider: ^4.2.1
 
 dev_dependencies:
   flutter_test:
