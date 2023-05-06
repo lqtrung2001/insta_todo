@@ -22,6 +22,7 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   bool isFollowing = false;
   var userData = {};
+  var currentUserData = {};
   var postData = {};
   int followers = 0;
   int following = 0;
@@ -44,14 +45,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
           .collection('users')
           .doc(widget.user_id)
           .get();
+      var currentUserSnap = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(FirebaseAuth.instance.currentUser!.uid)
+          .get();
 
       var postSnap = await FirebaseFirestore.instance
           .collection('posts')
-          .where('uid', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+          .where('uid', isEqualTo: widget.user_id)
           .get();
 
       postLen = postSnap.docs.length;
       userData = userSnap.data()!;
+      currentUserData = currentUserSnap.data()!;
       followers = userSnap.data()!['followers'].length;
       following = userSnap.data()!['following'].length;
       isFollowing = userSnap
@@ -160,6 +166,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                       FirebaseAuth.instance
                                                           .currentUser!.uid,
                                                       userData['uid'],
+                                                      currentUserData['username'],
+                                                      currentUserData['photoUrl'],
                                                     );
 
                                                     setState(() {
@@ -179,6 +187,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                       FirebaseAuth.instance
                                                           .currentUser!.uid,
                                                       userData['uid'],
+                                                      currentUserData['username'],
+                                                      currentUserData['photoUrl'],
                                                     );
 
                                                     setState(() {

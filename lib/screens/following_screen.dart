@@ -27,6 +27,7 @@ class _FollowingScreenState extends State<FollowingScreen>
   bool isLoading = false;
   List listFollowId = [];
   var userData = {};
+  var currentUserData = {};
   List<User> _users = [];
 
   @override
@@ -46,6 +47,12 @@ class _FollowingScreenState extends State<FollowingScreen>
           .doc(widget.user_id)
           .get();
       userData = userSnap.data()!;
+      var currentUserSnap = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(widget.current_user_id)
+          .get();
+      userData = userSnap.data()!;
+      currentUserData = currentUserSnap.data()!;
       if (widget.isFollower) {
         listFollowId = userSnap.data()!['followers'];
       } else {
@@ -132,8 +139,10 @@ class _FollowingScreenState extends State<FollowingScreen>
                     : Color(0xffffff),
                 onPressed: () async {
                   await FireStoreMethods().followUser(
-                    widget.current_user_id,
                     user.uid,
+                    widget.current_user_id,
+                    currentUserData['username'],
+                    currentUserData['photoUrl'],
                   );
                 },
                 shape: RoundedRectangleBorder(

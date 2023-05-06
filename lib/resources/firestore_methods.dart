@@ -104,30 +104,49 @@ class FireStoreMethods {
   }
 
   Future<void> followUser(
-      String uid,
-      String followId
+      String ownerId,
+      String followId,
+      String followUsername,
+      String followUserPhoto,
       ) async {
     try {
-      DocumentSnapshot snap = await _firestore.collection('users').doc(uid).get();
+      DocumentSnapshot snap = await _firestore.collection('users').doc(ownerId).get();
       List following = (snap.data()! as dynamic)['following'];
 
       if(following.contains(followId)) {
         await _firestore.collection('users').doc(followId).update({
-          'followers': FieldValue.arrayRemove([uid])
+          'followers': FieldValue.arrayRemove([ownerId])
         });
 
-        await _firestore.collection('users').doc(uid).update({
+        await _firestore.collection('users').doc(ownerId).update({
           'following': FieldValue.arrayRemove([followId])
         });
       } else {
         await _firestore.collection('users').doc(followId).update({
-          'followers': FieldValue.arrayUnion([uid])
+          'followers': FieldValue.arrayUnion([ownerId])
         });
 
-        await _firestore.collection('users').doc(uid).update({
+        await _firestore.collection('users').doc(ownerId).update({
           'following': FieldValue.arrayUnion([followId])
         });
+
+        String activityId = const Uuid().v1();
+
+        _firestore
+            .collection('users')
+            .doc(ownerId)
+            .collection('feedItems')
+            .doc(activityId)
+            .set({
+          'type': 'follow',
+          'ownerId': ownerId,
+          'username': followUsername,
+          'userId': followId,
+          'userProfileImg': followUserPhoto,
+          'timestamp': DateTime.now(),
+        });
       }
+
 
     } catch(e) {
       print(e.toString());

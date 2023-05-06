@@ -91,7 +91,8 @@ class _StoryImageState extends State<StoryImage> {
                                               userProvider.getUser.photoUrl,
                                               file1);
                                         },
-                                      )));
+                                      )
+                              ));
                           Navigator.pop(context);
                         },
                         child: Padding(
