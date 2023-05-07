@@ -223,15 +223,19 @@ class _PostCardState extends State<PostCard> {
                         children: imagesList.map((urlOfItem) {
                           int index = imagesList.indexOf(urlOfItem);
                           return Container(
-                            width: 10.0,
-                            height: 10.0,
+                            width: 15.0,
+                            height: 3.0,
                             margin: EdgeInsets.symmetric(
                                 vertical: 10.0, horizontal: 2.0),
                             decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: _currentIndex == index
-                                  ? Colors.white
-                                  : Colors.grey,
+                              shape: BoxShape.rectangle,
+                                gradient: LinearGradient(colors: _currentIndex == index
+                                    ? bgStoryColors
+                                    : bgGreyColors),
+
+                            // color: _currentIndex == index
+                            //       ? bgStoryColors
+                            //       : Colors.grey,
                             ),
                           );
                         }).toList(),
@@ -284,7 +288,7 @@ class _PostCardState extends State<PostCard> {
                         ),
                   onPressed: () => FireStoreMethods().likePost(
                     widget.snap['postId'].toString(),
-                    widget.snap['postUrl'].toString(),
+                    widget.snap['postUrl'][0].toString(),
                     widget.snap['uid'].toString(),
                     widget.snap['username'].toString(),
                     widget.snap['profImage'].toString(),

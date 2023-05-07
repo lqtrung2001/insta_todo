@@ -33,6 +33,7 @@ class FeedScreen extends StatefulWidget {
 class _FeedScreenState extends State<FeedScreen> {
   var notifyHelper;
 
+
   @override
   void initState() {
     super.initState();
@@ -45,6 +46,8 @@ class _FeedScreenState extends State<FeedScreen> {
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     final UserProvider userProvider = Provider.of<UserProvider>(context);
+    var beginningDate = DateTime.now();
+    var newDate = beginningDate.subtract(Duration(days: 1));
     return Scaffold(
         appBar: width > 600
             ? null
@@ -78,6 +81,8 @@ class _FeedScreenState extends State<FeedScreen> {
                   child: StreamBuilder(
                     stream: FirebaseFirestore.instance
                         .collection('stories')
+                        .where("datePublished",isGreaterThanOrEqualTo: newDate)
+                        .orderBy("datePublished", descending: false)
                         .snapshots(),
                     builder: (context,
                         AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>>
@@ -105,8 +110,75 @@ class _FeedScreenState extends State<FeedScreen> {
                       return ListView.builder(
                           shrinkWrap: true,
                           scrollDirection: Axis.horizontal,
-                          itemCount: mapLinkedByUid.length,
+                          itemCount: mapLinkedByUid.length <= 0 ? 1 : mapLinkedByUid.length,
                           itemBuilder: (ctx, index) {
+                            if(mapLinkedByUid.length <=0) {
+                              return Container(
+                                child: Column(
+                                  children: [
+                                    Stack(
+                                      children: [
+                                        Container(
+                                          width: 80,
+                                          decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              gradient: LinearGradient(colors: bgStoryColors)),
+                                          child: GestureDetector(
+                                            onTap: () {
+                                              Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          StoriesEditor(
+                                                            giphyKey:
+                                                            '[HERE YOUR API KEY]',
+                                                            onDone: (uri) async {
+                                                              debugPrint(uri);
+                                                              File file = File(uri);
+                                                              Uint8List file1 = file.readAsBytesSync();
+                                                              postStory(
+                                                                  userProvider.getUser.uid,
+                                                                  userProvider.getUser.username,
+                                                                  userProvider.getUser.photoUrl,
+                                                                  file1);
+                                                            },
+                                                          )
+                                                  ));
+                                              // Navigator.pop(context);
+                                            },
+                                            child: Padding(
+                                              padding: const EdgeInsets.all(2.0),
+                                              child: Container(
+                                                height: 70,
+                                                width: 70,
+                                                decoration: BoxDecoration(
+                                                    shape: BoxShape.circle,
+                                                    border: Border.all(width: 2, color: bgWhite),
+                                                    image: DecorationImage(
+                                                        image: NetworkImage('https://firebasestorage.googleapis.com/v0/b/insta-todo.appspot.com/o/profilePics%2FMwgGwnL3XWSBnlwPR6VUfkeIVUQ2?alt=media&token=3e9a7d61-a3d4-47a4-b7c7-37c6b0d80824'),
+                                                        fit: BoxFit.cover)),
+                                                child: Icon(
+                                                  Icons.add,
+                                                  color: bgWhite,
+                                                  size: 50,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                    SizedBox(height: 5),
+                                    Text(
+                                      'Your story',
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(fontSize: 12),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }
                             String key = mapLinkedByUid.keys.elementAt(index);
                             return Container(
                               child: StoryImage(

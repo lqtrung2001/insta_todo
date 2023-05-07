@@ -93,7 +93,7 @@ class _StoryImageState extends State<StoryImage> {
                                         },
                                       )
                               ));
-                          Navigator.pop(context);
+                          // Navigator.pop(context);
                         },
                         child: Padding(
                           padding: const EdgeInsets.all(2.0),

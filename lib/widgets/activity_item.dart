@@ -1,26 +1,55 @@
+import 'dart:collection';
+
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:insta_todo/models/story.dart';
 import 'package:insta_todo/screens/post_screen.dart';
 import 'package:insta_todo/screens/profile_screen.dart';
+import 'package:insta_todo/screens/story_screen.dart';
 import 'package:timeago/timeago.dart' as timeago;
-
+import 'package:insta_todo/models/story.dart' as modelStory;
 
 class ActivityFeedItem extends StatelessWidget {
   final snap;
 
   var activityItemText;
   var mediaPreview;
+
   ActivityFeedItem({
     required this.snap,
   });
 
-
-  showPost(context) {
+  showPost(context) async {
+    DocumentSnapshot snapPost = await FirebaseFirestore.instance
+        .collection('posts')
+        .doc(snap.data()['postId'])
+        .get();
     Navigator.push(
       context,
       MaterialPageRoute(
           builder: (context) => PostScreen(
-            postId: snap.data()['postId'],
+                snap: snapPost,
+              )),
+    );
+  }
+
+  showStory(context) async {
+    QuerySnapshot snapPost = await FirebaseFirestore.instance
+        .collection('stories')
+        .where('storyId', isEqualTo: snap.data()['postId'])
+        .get();
+    var mappedByUid = new Map();
+    mappedByUid[snap.data()['userId']] = snapPost.docs;
+    List<Story> _stories = [];
+    mappedByUid[snap.data()['userId']].forEach((element)  {
+      _stories.add(modelStory.Story.fromSnap(element));
+    });
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => StoryScreen(
+            stories: _stories, fullSnap: mappedByUid, index: 0, lengthSnap: mappedByUid.length,
           )),
     );
   }
@@ -38,9 +67,27 @@ class ActivityFeedItem extends StatelessWidget {
             child: Container(
               decoration: BoxDecoration(
                   image: DecorationImage(
-                    fit: BoxFit.cover,
-                    image: CachedNetworkImageProvider(snap.data()['mediaUrl']),
-                  )),
+                fit: BoxFit.cover,
+                image: CachedNetworkImageProvider(snap.data()['mediaUrl']),
+              )),
+            ),
+          ),
+        ),
+      );
+    } else if (type == 'viewStory' || type == 'likeStory') {
+      mediaPreview = GestureDetector(
+        onTap: () => showStory(context),
+        child: Container(
+          height: 50.0,
+          width: 50.0,
+          child: AspectRatio(
+            aspectRatio: 16 / 9,
+            child: Container(
+              decoration: BoxDecoration(
+                  image: DecorationImage(
+                fit: BoxFit.cover,
+                image: CachedNetworkImageProvider(snap.data()['mediaUrl']),
+              )),
             ),
           ),
         ),
@@ -55,6 +102,10 @@ class ActivityFeedItem extends StatelessWidget {
     } else if (type == 'comment') {
       var commentData = snap.data()['commentData'];
       activityItemText = 'replied: $commentData';
+    } else if (type == 'viewStory') {
+      activityItemText = 'viewed your story';
+    } else if (type == 'likeStory') {
+      activityItemText = 'liked your story';
     } else {
       activityItemText = 'Error: Unknown type "$type"';
     }
@@ -93,7 +144,8 @@ class ActivityFeedItem extends StatelessWidget {
             ),
           ),
           leading: CircleAvatar(
-            backgroundImage: CachedNetworkImageProvider(snap.data()['userProfileImg']),
+            backgroundImage:
+                CachedNetworkImageProvider(snap.data()['userProfileImg']),
           ),
           subtitle: Text(
             timeago.format(snap.data()['timestamp'].toDate()),

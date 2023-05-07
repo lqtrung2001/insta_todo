@@ -6,9 +6,11 @@ import 'package:insta_todo/resources/auth_methods.dart';
 import 'package:insta_todo/resources/firestore_methods.dart';
 import 'package:insta_todo/screens/following_screen.dart';
 import 'package:insta_todo/screens/login_screen.dart';
+import 'package:insta_todo/screens/post_screen.dart';
 import 'package:insta_todo/utils/colors.dart';
 import 'package:insta_todo/utils/utils.dart';
 import 'package:insta_todo/widgets/follow_button.dart';
+import 'package:insta_todo/widgets/post_card.dart';
 
 class ProfileScreen extends StatefulWidget {
   final String user_id;
@@ -289,22 +291,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             DocumentSnapshot snap =
                                 (snapshot.data! as dynamic).docs[index];
                             List listPostUrl = snap['postUrl'];
-                            return Container(
-                              child: Align(
-                                alignment: Alignment.topRight,
-                                child: listPostUrl.length > 1 ? Container(
-                                  padding: EdgeInsets.all(10),
-                                  child: Icon(
-                                    Icons.list,
-                                    color: Colors.white,
-                                  ),
-                                )
-                                : Container(),
-                              ),
-                              decoration: BoxDecoration(
-                                image: DecorationImage(
-                                    image: NetworkImage(listPostUrl[0]),
-                                    fit: BoxFit.cover),
+                            return GestureDetector(
+                              onTap: () => Navigator.of(context).push(
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        PostScreen(snap: snap)
+                              )),
+                              child: Container(
+                                child: Align(
+                                  alignment: Alignment.topRight,
+                                  child: listPostUrl.length > 1 ? Container(
+                                    padding: EdgeInsets.all(10),
+                                    child: Icon(
+                                      Icons.list,
+                                      color: Colors.white,
+                                    ),
+                                  )
+                                  : Container(),
+                                ),
+                                decoration: BoxDecoration(
+                                  image: DecorationImage(
+                                      image: NetworkImage(listPostUrl[0]),
+                                      fit: BoxFit.cover),
+                                ),
                               ),
                             );
                           }

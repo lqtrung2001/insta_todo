@@ -26,7 +26,7 @@ class _CommentsScreenState extends State<CommentsScreen> {
     try {
       String res = await FireStoreMethods().postComment(
         widget.postId,
-        widget.postUrl,
+        widget.postUrl[0],
         widget.postOwnerId,
         commentEditingController.text,
         uid,

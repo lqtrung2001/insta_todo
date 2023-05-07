@@ -51,6 +51,80 @@ class FireStoreMethods {
     return res;
   }
 
+  Future<String> likeStory(String storyId, String postUrl, String storyOwnerId, String name, String profImage,String uid, List likes) async {
+    String res = "Some error occurred";
+    try {
+      if (likes.contains(uid)) {
+        // if the likes list contains the user uid, we need to remove it
+        _firestore.collection('stories').doc(storyId).update({
+          'likes': FieldValue.arrayRemove([uid])
+        });
+      } else {
+        // else we need to add uid to the likes array
+        _firestore.collection('stories').doc(storyId).update({
+          'likes': FieldValue.arrayUnion([uid])
+        });
+        bool isNotPostOwner = storyOwnerId != currentUser.uid;
+        String activityId = const Uuid().v1();
+        if (isNotPostOwner) {
+          _firestore
+              .collection('users')
+              .doc(storyOwnerId)
+              .collection('feedItems')
+              .doc(activityId)
+              .set({
+            'type': 'likeStory',
+            'username': name,
+            'userId': currentUser.uid,
+            'userProfileImg': profImage,
+            'postId': storyId,
+            'mediaUrl': postUrl,
+            'timestamp': DateTime.now(),
+          });
+        }
+      }
+      res = 'success';
+    } catch (err) {
+      res = err.toString();
+    }
+    return res;
+  }
+
+  Future<String> viewStory(String storyId, String postUrl, String storyOwnerId, String name, String profImage,String uid, List likes) async {
+    String res = "Some error occurred";
+    try {
+      if(storyOwnerId != uid) {
+        if (!likes.contains(uid)) {
+          _firestore.collection('stories').doc(storyId).update({
+            'views': FieldValue.arrayUnion([uid])
+          });
+          bool isNotPostOwner = storyOwnerId != currentUser.uid;
+          String activityId = const Uuid().v1();
+          if (isNotPostOwner) {
+            _firestore
+                .collection('users')
+                .doc(storyOwnerId)
+                .collection('feedItems')
+                .doc(activityId)
+                .set({
+              'type': 'viewStory',
+              'username': name,
+              'userId': currentUser.uid,
+              'userProfileImg': profImage,
+              'postId': storyId,
+              'mediaUrl': postUrl,
+              'timestamp': DateTime.now(),
+            });
+          }
+        }
+      }
+      res = 'success';
+    } catch (err) {
+      res = err.toString();
+    }
+    return res;
+  }
+
 
   Future<String> uploadPost(String description, List<Uint8List> listFile, String uid,
       String username, String profImage) async {

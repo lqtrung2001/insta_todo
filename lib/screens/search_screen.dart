@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:insta_todo/screens/post_screen.dart';
+import 'package:insta_todo/screens/profile_screen.dart';
 import 'package:insta_todo/utils/colors.dart';
 
 class SearchScreen extends StatefulWidget {
@@ -48,7 +50,9 @@ class _SearchScreenState extends State<SearchScreen> {
                   itemCount: (snapshot.data! as dynamic).docs.length,
                   itemBuilder: (context, index) {
                     return InkWell(
-                      onTap: () => {},
+                      onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => ProfileScreen(
+                              user_id: (snapshot.data! as dynamic).docs[index]['uid']))),
                       child: ListTile(
                         leading: CircleAvatar(
                           backgroundImage: NetworkImage(
@@ -73,11 +77,41 @@ class _SearchScreenState extends State<SearchScreen> {
                     child: const CircularProgressIndicator(),
                   );
                 }
+
                 return StaggeredGridView.countBuilder(
                   crossAxisCount: 3,
                   itemCount: (snapshot.data! as dynamic).docs.length,
-                  itemBuilder: (context, index) => Image.network(
-                      (snapshot.data! as dynamic).docs[index]['postUrl'][0], fit: BoxFit.fill,),
+                  itemBuilder: (context, index) => GestureDetector(
+                    onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => PostScreen(
+                            snap: (snapshot.data! as dynamic).docs[index]))),
+                    child: Container(
+                      child: Align(
+                        alignment: Alignment.topRight,
+                        child: (snapshot.data! as dynamic)
+                                    .docs[index]['postUrl']
+                                    .length >
+                                1
+                            ? Container(
+                                padding: EdgeInsets.all(10),
+                                child: Icon(
+                                  Icons.list,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : Container(),
+                      ),
+                      decoration: BoxDecoration(
+                        image: DecorationImage(
+                            image: NetworkImage((snapshot.data! as dynamic)
+                                .docs[index]['postUrl'][0]),
+                            fit: BoxFit.fill),
+                      ),
+                    ),
+                  ),
+                  // Image.network(
+                  // (snapshot.data! as dynamic).docs[index]['postUrl'][0], fit: BoxFit.fill,),
+
                   staggeredTileBuilder: (index) => StaggeredTile.count(
                     (index % 7 == 0) ? 2 : 1,
                     (index % 7 == 0) ? 2 : 1,

@@ -28,7 +28,10 @@ const bgStoryColors = [
   const Color(0xffF9A326),
   const Color(0xffF9DD26),
 ];
-
+const bgGreyColors = [
+  const Color(0xffC8C8C8),
+  const Color(0xffffffff),
+];
 const Color success = Color(0xff44c93a);
 const Color danger = Color(0xffff4657);
 const Color info = Color(0xff5bc0de);
