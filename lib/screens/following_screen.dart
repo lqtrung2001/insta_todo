@@ -32,8 +32,6 @@ class _FollowingScreenState extends State<FollowingScreen>
 
   @override
   void initState() {
-    // TODO: implement initState
-    super.initState();
     getData();
   }
 
@@ -53,18 +51,21 @@ class _FollowingScreenState extends State<FollowingScreen>
           .get();
       userData = userSnap.data()!;
       currentUserData = currentUserSnap.data()!;
+      listFollowId = [];
+      _users = [];
       if (widget.isFollower) {
-        listFollowId = userSnap.data()!['followers'];
+        listFollowId = await userSnap.data()!['followers'];
       } else {
-        listFollowId = userSnap.data()!['following'];
+        listFollowId = await userSnap.data()!['following'];
       }
-      listFollowId.forEach((element) async {
-        var userDetail = await FirebaseFirestore.instance
+      for (final element in listFollowId) {
+        final userDetail = await FirebaseFirestore.instance
             .collection('users')
             .doc(element)
             .get();
-        _users.add(model.User.fromSnap(userDetail));
-      });
+        final user = await model.User.fromSnap(userDetail);
+        _users.add(user);
+      }
     } catch (e) {
       showSnackBar(
         context,

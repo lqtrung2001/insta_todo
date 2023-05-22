@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +9,7 @@ import 'package:insta_todo/models/story.dart' as modelStory;
 import 'package:insta_todo/resources/firestore_methods.dart';
 import 'package:insta_todo/screens/feed_screen.dart';
 import 'package:insta_todo/models/users.dart' as model;
+import 'package:insta_todo/utils/story_json.dart';
 import 'package:insta_todo/widgets/like_animation.dart';
 import 'package:provider/provider.dart';
 
@@ -29,11 +32,13 @@ class StoryScreen extends StatefulWidget {
 
 class _StoryScreenState extends State<StoryScreen>
     with SingleTickerProviderStateMixin {
+  late List<Story> listStory = widget.stories;
+  late LinkedHashMap listFullSnap = widget.fullSnap;
   late PageController _pageController;
   late AnimationController _animController;
   int _currentIndex = 0;
   late int _indexPage = widget.index;
-  late String key = widget.fullSnap.keys.elementAt(_indexPage);
+  late String key = listFullSnap.keys.elementAt(_indexPage);
   List<Story> _stories = [];
   List<model.User> _userViews = [];
   List<model.User> _userLikes = [];
@@ -45,7 +50,7 @@ class _StoryScreenState extends State<StoryScreen>
     _pageController = PageController();
     _animController = AnimationController(vsync: this);
 
-    widget.fullSnap[key].forEach((element) {
+    listFullSnap[key].forEach((element) {
       _stories.add(modelStory.Story.fromSnap(element));
     });
 
@@ -64,9 +69,9 @@ class _StoryScreenState extends State<StoryScreen>
             // You can also Navigator.of(context).pop() here
             _indexPage += 1;
             if (_indexPage < widget.lengthSnap) {
-              key = widget.fullSnap.keys.elementAt(_indexPage);
+              key = listFullSnap.keys.elementAt(_indexPage);
               _stories = [];
-              widget.fullSnap[key].forEach((element) {
+              listFullSnap[key].forEach((element) {
                 _stories.add(modelStory.Story.fromSnap(element));
               });
               _currentIndex = 0;
@@ -89,17 +94,18 @@ class _StoryScreenState extends State<StoryScreen>
 
   @override
   Widget build(BuildContext context) {
-    key = widget.fullSnap.keys.elementAt(_indexPage);
+    key = listFullSnap.keys.elementAt(_indexPage);
 
     _stories = [];
 
-    widget.fullSnap[key].forEach((element) {
+    listFullSnap[key].forEach((element) {
       _stories.add(modelStory.Story.fromSnap(element));
     });
     final Story story = _stories[_currentIndex];
     final model.User user = Provider.of<UserProvider>(context).getUser;
     List views = story.views;
     List likes = story.likes;
+    bool _liked = likes.contains(user.uid);
     int viewLength = views.length;
     int likeLength = likes.length;
     views.forEach((element) async {
@@ -125,9 +131,9 @@ class _StoryScreenState extends State<StoryScreen>
             PageView.builder(
               controller: _pageController,
               physics: NeverScrollableScrollPhysics(),
-              itemCount: widget.stories.length,
+              itemCount: listStory.length,
               itemBuilder: (context, i) {
-                final Story story = widget.stories[i];
+                final Story story = listStory[i];
                 FireStoreMethods().viewStory(
                   story.storyId,
                   story.postUrl,
@@ -151,7 +157,7 @@ class _StoryScreenState extends State<StoryScreen>
               child: Column(
                 children: <Widget>[
                   Row(
-                    children: widget.stories
+                    children: listStory
                         .asMap()
                         .map((i, e) {
                           return MapEntry(
@@ -307,7 +313,7 @@ class _StoryScreenState extends State<StoryScreen>
                     bottom: 10,
                     right: 10,
                     child: LikeAnimation(
-                      isAnimating: likes.contains(user.uid),
+                      isAnimating: _liked,
                       smallLike: true,
                       child: IconButton(
                           icon: likes.contains(user.uid)
@@ -331,6 +337,7 @@ class _StoryScreenState extends State<StoryScreen>
                                   likes,
                                 ),
                                 setState(() {
+                                  _liked = !_liked;
                                   isLikeAnimating = !isLikeAnimating;
                                 }),
                                 _loadStory(
@@ -479,9 +486,9 @@ class _StoryScreenState extends State<StoryScreen>
           // You can also Navigator.of(context).pop() here
           _indexPage -= 1;
           if (_indexPage >= 0) {
-            key = widget.fullSnap.keys.elementAt(_indexPage);
+            key = listFullSnap.keys.elementAt(_indexPage);
             _stories = [];
-            widget.fullSnap[key].forEach((element) {
+            listFullSnap[key].forEach((element) {
               _stories.add(modelStory.Story.fromSnap(element));
             });
             _currentIndex = _stories.length;
@@ -501,9 +508,9 @@ class _StoryScreenState extends State<StoryScreen>
           // You can also Navigator.of(context).pop() here
           _indexPage += 1;
           if (_indexPage < widget.lengthSnap) {
-            key = widget.fullSnap.keys.elementAt(_indexPage);
+            key = listFullSnap.keys.elementAt(_indexPage);
             _stories = [];
-            widget.fullSnap[key].forEach((element) {
+            listFullSnap[key].forEach((element) {
               _stories.add(modelStory.Story.fromSnap(element));
             });
             _currentIndex = 0;
@@ -529,7 +536,7 @@ class _StoryScreenState extends State<StoryScreen>
             MaterialPageRoute(
               builder: (context) => StoryScreen(
                 stories: _stories,
-                fullSnap: widget.fullSnap,
+                fullSnap: listFullSnap,
                 index: _indexPage,
                 lengthSnap: widget.lengthSnap,
               ),
